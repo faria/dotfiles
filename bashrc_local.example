@@ -1,0 +1,16 @@
+# ~/.bashrc_local
+
+# set up virtualenvwrapper
+if [ -d ~/.virtualenvs ]; then
+    export WORKON_HOME="$HOME/.virtualenvs"
+    export VIRTUALENVWRAPPER_PYTHON='python2.7'
+    export VIRTUALENVWRAPPER_VIRTUALENV='virtualenv-2.7'
+    source /path/to/virtualenvwrapper.sh
+fi
+
+# enable bash completion for django
+if [ -d ~/dev/django ]; then
+    source ~/dev/django/extras/django_bash_completion
+fi
+
+# vim: ft=sh
