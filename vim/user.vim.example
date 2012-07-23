@@ -1,0 +1,16 @@
+" ~/.vim/user.vim
+"
+" This file shouldn't be included in version control, and may therefore be
+" used for user or machine-specific settings. Because this file is loaded last
+" in ~/.vimrc it will override any other settings you may have placed there.
+"
+
+" Disable folding
+set nofoldenable
+set foldcolumn=0
+
+" Suppress LustyJuggler ruby warning
+"let g:LustyJugglerSuppressRubyWarning=1
+
+" -----------------------------------------------------------------------------
+" vim: ft=vim
