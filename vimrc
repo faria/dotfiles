@@ -8,8 +8,11 @@
 " This must be first, because it changes other options as a side effect
 set nocompatible
 
+" Change the mapleader from \ to ,
+let mapleader=","
+
 " -----------------------------------------------------------------------------
-" Vundle
+" Plugin Settings
 
 " Vundle Plugin Manager {{{
 
@@ -22,21 +25,31 @@ set runtimepath+=~/.vim/bundle/vundle/
 call vundle#rc()
 
 " let Vundle manage Vundle (required!)
+" https://github.com/gmarik/vundle/
 Bundle 'gmarik/vundle'
 
 " Plugin Bundles
 " --- Navigation {{{
 
 " ZoomWin - Zoom in/out of windows (toggle between one window and multi-window)
+" Use '<C-w>o' to toggle zoom on window
 " http://www.vim.org/scripts/script.php?script_id=508
 Bundle 'ZoomWin'
 
 " Command-T - Fast file navigation for vim
+" Use '<Leader>t' to run :CommandT<CR>
+" Use '<Leader>b' to run :CommandTBuffer<CR>
+" To setup this plugin after installation:
+"   $ cd ~/.vim/bundle/command-t/ruby/command-t
+"   $ ruby extconf.rb
+"   $ make
 " http://www.vim.org/scripts/script.php?script_id=3025
 " https://github.com/wincent/Command-T
 " http://git.wincent.com/command-t.git
 "Bundle 'wincent/Command-T'
 Bundle 'git://git.wincent.com/command-t.git'
+silent! nnoremap <silent> \t :CommandT<CR>
+silent! nnoremap <silent> \b :CommandTBuffer<CR>
 
 " space.vim - Smart Space key for vim
 " https://github.com/spiiph/vim-space
@@ -44,11 +57,14 @@ Bundle 'git://git.wincent.com/command-t.git'
 Bundle 'spiiph/vim-space'
 
 " EasyMotion - Vim motions on speed!
+" Use with \\{motion-command} such as \\w, \\f, etc.
 " http://www.vim.org/scripts/script.php?script_id=3526
 " https://github.com/Lokaltog/vim-easymotion
 Bundle 'Lokaltog/vim-easymotion'
+let g:EasyMotion_leader_key = '\\'
 
 " LustyJuggler - Switch very quickly among your active buffers
+" Launch with '<Leader>lj'
 " http://www.vim.org/scripts/script.php?script_id=2050
 " https://github.com/sjbach/lusty
 " https://github.com/vim-scripts/LustyJuggler
@@ -88,7 +104,7 @@ Bundle 'Rykka/colorv.vim'
 " quickfixsigns - Mark quickfix & location list items with signs
 " http://www.vim.org/scripts/script.php?script_id=2584
 " https://github.com/tomtom/quickfixsigns_vim
-Bundle 'tomtom/quickfixsigns_vim'
+"Bundle 'tomtom/quickfixsigns_vim'
 
 " tagbar - Vim plugin that displays tags in a window, ordered by class etc.
 " http://majutsushi.github.com/tagbar/
@@ -218,6 +234,11 @@ Bundle 'ervandew/supertab'
 " http://www.vim.org/scripts/script.php?script_id=3818
 " https://github.com/gregsexton/MatchTag
 Bundle 'gregsexton/MatchTag'
+
+" closetag.vim - Functions and mappings to close open HTML/XML tags
+" http://www.vim.org/scripts/script.php?script_id=13
+" https://github.com/vim-scripts/closetag.vim
+Bundle 'vim-scripts/closetag.vim'
 
 " neocomplcache - Ultimate auto completion system for vim
 " http://www.vim.org/scripts/script.php?script_id=2620
@@ -357,6 +378,9 @@ Bundle 'tpope/vim-repeat'
 Bundle 'a.vim'
 
 " bufexplorer.zip - Buffer Explorer / Browser
+"   '<Leader>be'  normal open
+"   '<Leader>bs'  horizontal split open
+"   '<Leader>bv'  vertical split open
 " http://www.vim.org/scripts/script.php?script_id=42
 " https://github.com/vim-scripts/bufexplorer.zip
 Bundle 'bufexplorer.zip'
@@ -420,6 +444,9 @@ Bundle 'benmills/vimux'
 filetype plugin indent on
 
 "
+" To bootstrap vundle, run:
+"   $ git clone https://github.com/gmarik/vundle.git ~/.vim/bundle/vundle
+"
 " Brief help
 "   :BundleList             - list configured bundles
 "   :BundleInstall(!)       - install (update) bundles
@@ -431,13 +458,47 @@ filetype plugin indent on
 
 " }}}
 
+" Configure Plugins {{{
+" --- NERDTree settings {{{
+
+" Put focus on the NERD Tree with F3 (tricked by quickly closing it and
+" immediately showing it again, since there is no :NERDTreeFocus command)
+nmap <leader>n :NERDTreeToggle<CR>
+nmap <leader>m :NERDTreeFind<CR>
+
+" Store the bookmarks
+let NERDTreeBookmarksFile=expand("$HOME/.vim/tmp/NERDTreeBookmarks")
+
+" Show the bookmarks table on startup?
+let NERDTreeShowBookmarks=0
+
+" Show hidden files?
+let NERDTreeShowFiles=1
+let NERDTreeShowHidden=1
+
+" Quit on opening files from the tree?
+let NERDTreeQuitOnOpen=0
+
+" Highlight the selected entry in the tree?
+let NERDTreeHighlightCursorline=0
+
+" Use a single click to fold/unfold directories and a double click to open files
+let NERDTreeMouseMode=2
+
+" Don't display these kinds of files
+let NERDTreeIgnore=[
+    \ '\.pyc$', '\.pyo$', '\.py$', '\.egg$',
+    \ '\.class$', '\.obj$', '\.o$', '\.so$',
+    \ '^\.git$', '^\.svn$' ]
+
+" }}}
+" }}}
+
 " -----------------------------------------------------------------------------
 " Vim Settings
 
-" Change the map leader from \ to ,
-let mapleader=","
-
 " Editing behaviour {{{
+
 set showmode        " always show what mode we're currently editing in
 set expandtab       " expand tabs into spaces by default (overloadable per file type later)
 set tabstop=4       " a tab is four spaces
@@ -482,23 +543,6 @@ set mouse=a
 " specifies what end-of-line formats will be tried when editing a new buffer
 set fileformats="unix,dos,mac"
 
-" Use normal regexes in search (instead of vim's crazy regexes)
-" Thanks to Steve Losh for this liberating tip
-" See http://stevelosh.com/blog/2010/09/coming-home-to-vim
-nnoremap / /\v
-vnoremap / /\v
-
-" Scroll one line at a time with C-j / C-k, in normal mode.
-" To scroll by half a page, use the usual CTRL-U / CTRL-D.
-nnoremap <C-j> <C-e>
-nnoremap <C-k> <C-y>
-
-" Similarly for incremental horizontal scrolling (useful with ':set nowrap').
-" Although, is it really a good idea to override CTRL-L, which typically
-" refreshes the screen?
-nnoremap <C-h> 3zh
-nnoremap <C-l> 3zl
-
 " }}}
 
 " Folding rules {{{
@@ -538,11 +582,29 @@ set encoding=utf-8      " character encoding used inside vim
 set lazyredraw          " don't update the display while executing macros
 set cmdheight=1         " use a status bar that is 2 rows high (nevermind, set it back to 1)
 set showtabline=2       " show tab page labels (0 = never, 1 = when more than one, 2 = always)
-set ruler               " show line and column number of the cursor position
 set laststatus=2        " tell VIM to always put a status line in, even if there is only one window
+set ruler               " show line and column number of the cursor position
 " }}}
 
 " Vim behaviour {{{
+
+" change the terminal's title
+set title
+
+" don't beep
+set visualbell
+set noerrorbells
+
+" show (partial) command in the last line of the screen.
+" this also shows visual selection info
+set showcmd
+
+" modeline settings (although, as a security measure, one should disable mode lines)
+set modelines=5
+set modeline
+
+" always use a fast terminal
+set ttyfast
 
 " hide buffers instead of closing them. this means that the current buffer
 " can be put to background without being written; and that marks and undo
@@ -564,14 +626,14 @@ set viminfo='20,\"80
 " Fortunately, we can set it explicitly. See the following Vim FAQ entry:
 " http://vimdoc.sourceforge.net/cgi-bin/vimfaq2html3.pl#7.2
 " See also: http://news.ycombinator.com/item?id=1688068
-"set backupdir=~/.vim/tmp/backup//,~/tmp//,/tmp//
-"set directory=~/.vim/tmp/swp//,~/tmp//,/tmp//
+set backupdir=~/.vim/tmp//,~/tmp//,/tmp//
+set directory=~/.vim/tmp//,~/tmp//,/tmp//
 
-" keep the undo history for our buffers 
-"if 0 && v:version >= 703
-"    set undofile
-"    set undodir=~/.vim/tmp/undo//,~/tmp//,/tmp//
-"endif
+" keep the undo history for our buffers (disable for now)
+if 0 && exists('+undofile')
+    set undofile
+    set undodir=~/.vim/tmp//,~/tmp//,/tmp//
+endif
 
 " make tab completion for files/buffers act like bash
 set wildmenu
@@ -581,24 +643,6 @@ set wildmode=list:full
 
 " ignore completion for these files
 set wildignore=*.swp,*.bak,*.pyc,*.class
-
-" change the terminal's title
-set title
-
-" don't beep
-set visualbell
-set noerrorbells
-
-" show (partial) command in the last line of the screen.
-" this also shows visual selection info
-set showcmd
-
-" modeline settings (although, as a security measure, one should disable mode lines)
-set modelines=5
-set modeline
-
-" always use a fast terminal
-set ttyfast
 
 " underline the current line, for quick orientation
 "set cursorline
@@ -638,19 +682,45 @@ endif
 " Highlighting the 80th column (or relative to 'textwidth')
 " http://stackoverflow.com/questions/235439/vim-80-column-layout-concerns
 " http://vim.wikia.com/wiki/VimTip810
-if 0
-    if exists('+colorcolumn')
-        "set colorcolumn=+0
-        set colorcolumn=80
-    endif
+if 0 && exists('+colorcolumn')
+    "set colorcolumn=+0
+    set colorcolumn=80
     "highlight OverLength ctermbg=red ctermfg=white guibg=#592929
     highlight OverLength ctermbg=darkred ctermfg=white guibg=#FFD9D9
+    " see ':help match'
     match OverLength /\%81v.\+/
 endif
 
 " }}}
 
-" Shortcut mappings {{{
+" Mappings and keybindings {{{
+
+" Use the damn hjkl keys already
+map <up> <nop>
+map <down> <nop>
+map <left> <nop>
+map <right> <nop>
+
+" Remap j and k to act as expected when used on long, wrapped lines
+nnoremap j gj
+nnoremap k gk
+
+" Use normal regexes in search (instead of vim's crazy regexes)
+" Thanks to Steve Losh for this liberating tip
+" See http://stevelosh.com/blog/2010/09/coming-home-to-vim
+nnoremap / /\v
+vnoremap / /\v
+
+" Scroll one line at a time with C-j / C-k, in normal mode.
+" To scroll by half a page, use the usual CTRL-U / CTRL-D.
+nnoremap <C-j> <C-e>
+nnoremap <C-k> <C-y>
+
+" Similarly for incremental horizontal scrolling (useful with ':set nowrap').
+" Although, is it really a good idea to override CTRL-L, which typically
+" refreshes the screen?
+nnoremap <C-h> 3zh
+nnoremap <C-l> 3zl
 
 " Avoid accidental hits of <F1> while aiming for <Esc>
 map! <F1> <Esc>
@@ -674,17 +744,9 @@ nmap mk :make<CR>
 nnoremap ' `
 nnoremap ` '
 
-" Use the damn hjkl keys
-"map <up> <nop>
-"map <down> <nop>
-"map <left> <nop>
-"map <right> <nop>
-
-" Remap j and k to act as expected when used on long, wrapped lines
-nnoremap j gj
-nnoremap k gk
-
 " Easy window navigation
+" Actually, the original keybindings aren't so bad. It's better to save
+" the C-hjkl keybindings for scrolling.
 "map <C-h> <C-w>h
 "map <C-j> <C-w>j
 "map <C-k> <C-w>k
@@ -752,61 +814,129 @@ nnoremap <leader>v V`]
 
 " }}}
 
-" Extra vi-compatibility {{{
+" Filetype specific handling {{{
 
-" set extra vi-compatible options
+" only do this part when compiled with support for autocommands
+if has("autocmd")
 
-" when changing a line, don't redisplay, but put a '$' at the end during the change
-set cpoptions+=$
+    augroup invisible_chars "{{{
+        au!
+        " Show invisible characters in all of these files
+        autocmd filetype vim setlocal list
+        autocmd filetype python,rst setlocal list
+        autocmd filetype ruby setlocal list
+        autocmd filetype javascript,css setlocal list
+    augroup end "}}}
 
-" don't start new lines w/ comment leader on pressing 'o'
-set formatoptions-=o
+    augroup vim_files "{{{
+        au!
+        " Bind <F1> to show the keyword under cursor
+        " general help can still be entered manually, with :h
+        autocmd filetype vim noremap <buffer> <F1> <Esc>:help <C-r><C-w><CR>
+        autocmd filetype vim noremap! <buffer> <F1> <Esc>:help <C-r><C-w><CR>
+    augroup end "}}}
 
-" somehow, during vim filetype detection, this gets set for vim files,
-" so explicitly unset it again
-au filetype vim set formatoptions-=o
+    augroup html_files "{{{
+        au!
+        " This function detects, based on HTML content, whether this is a
+        " Django template, or a plain HTML file, and sets filetype accordingly
+        fun! s:DetectHTMLVariant()
+            let n = 1
+            while n < 50 && n < line("$")
+                " check for django
+                if getline(n) =~ '{%\s*\(extends\|load\|block\|if\|for\|include\|trans\)\>'
+                    set ft=htmldjango.html
+                    return
+                endif
+                let n = n + 1
+            endwhile
+            " go with html
+            set ft=html
+        endfun
+
+        autocmd BufNewFile,BufRead *.html,*.htm call s:DetectHTMLVariant()
+
+        " Auto-closing of HTML/XML tags
+        " http://mirnazim.org/writings/vim-plugins-i-use/
+        autocmd FileType html,htmldjango,jinjahtml,eruby,mako let b:closetag_html_style=1
+        autocmd FileType html,xhtml,xml,htmldjango,jinjahtml,eruby,mako source ~/.vim/bundle/closetag.vim/plugin/closetag.vim
+
+        " Enable Sparkup for lightning-fast HTML editing
+        let g:sparkupExecuteMapping = '<leader>e'
+    augroup end "}}}
+
+    augroup python_files "{{{
+        au!
+        " This function detects, based on Python content, whether this is a
+        " Django file, which may enabling snippet completion for it
+        fun! s:DetectPythonVariant()
+            let n = 1
+            while n < 50 && n < line("$")
+                " check for django
+                if getline(n) =~ 'import\s\+\<django\>'
+                    set ft=python.django
+                    "set syntax=python
+                    return
+                endif
+                let n = n + 1
+            endwhile
+            " go with html
+            set ft=python
+        endfun
+        autocmd BufNewFile,BufRead *.py call s:DetectPythonVariant()
+
+        " PEP8 compliance (set 1 tab = 4 chars explicitly, even if set
+        " earlier, as it is important)
+        autocmd filetype python setlocal expandtab shiftwidth=4 tabstop=4 softtabstop=4
+        autocmd filetype python setlocal textwidth=80
+        "autocmd filetype python match ErrorMsg '\%>79v.\+'
+
+        " But disable autowrapping as it is super annoying
+        autocmd filetype python setlocal formatoptions-=t
+
+        " Folding for Python (uses syntax/python.vim for fold definitions)
+        "autocmd filetype python,rst setlocal nofoldenable
+        "autocmd filetype python setlocal foldmethod=expr
+
+        " Python runners
+        autocmd filetype python map <buffer> <F5> :w<CR>:!python %<CR>
+        autocmd filetype python imap <buffer> <F5> <Esc>:w<CR>:!python %<CR>
+        autocmd filetype python map <buffer> <S-F5> :w<CR>:!ipython %<CR>
+        autocmd filetype python imap <buffer> <S-F5> <Esc>:w<CR>:!ipython %<CR>
+
+        " Run a quick static syntax check every time we save a Python file
+        " (this action is also mapped to <F7> by default)
+        "autocmd BufWritePost *.py call Pyflakes()
+    augroup end "}}}
+
+    augroup ruby_files "{{{
+        au!
+        autocmd filetype ruby setlocal expandtab shiftwidth=2 tabstop=2 softtabstop=2
+    augroup end "}}}
+
+    augroup rst_files "{{{
+        au!
+        " Auto-wrap text around 74 chars
+        autocmd filetype rst setlocal textwidth=74
+        autocmd filetype rst setlocal formatoptions+=nqt
+        "autocmd filetype rst match ErrorMsg '\%>73v.\+'
+    augroup end "}}}
+
+    augroup css_files "{{{
+        au!
+        autocmd filetype css,less setlocal foldmethod=marker foldmarker={,}
+    augroup end "}}}
+
+    augroup textile_files "{{{
+        au!
+        " Render YAML front matter inside Textile documents as comments
+        autocmd filetype textile syntax region frontmatter start=/\%^---$/ end=/^---$/
+        autocmd filetype textile highlight link frontmatter Comment
+    augroup end "}}}
+
+endif
 
 " }}}
-
-" -----------------------------------------------------------------------------
-" Configure plugins 
-
-" NERDTree settings {{{
-
-" Put focus on the NERD Tree with F3 (tricked by quickly closing it and
-" immediately showing it again, since there is no :NERDTreeFocus command)
-nmap <leader>n :NERDTreeToggle<CR>
-nmap <leader>m :NERDTreeFind<CR>
-
-" Store the bookmarks
-"let NERDTreeBookmarksFile=expand("$HOME/.vim/tmp/NERDTreeBookmarks")
-
-" Show the bookmarks table on startup
-"let NERDTreeShowBookmarks=1
-
-" Show hidden files, too
-let NERDTreeShowFiles=1
-let NERDTreeShowHidden=1
-
-" Quit on opening files from the tree
-"let NERDTreeQuitOnOpen=1
-
-" Highlight the selected entry in the tree
-let NERDTreeHighlightCursorline=1
-
-" Use a single click to fold/unfold directories and a double click to open files
-let NERDTreeMouseMode=2
-
-" Don't display these kinds of files
-let NERDTreeIgnore=[
-    \ '\.pyc$', '\.pyo$', '\.py$', '\.egg$',
-    \ '\.class$', '\.obj$', '\.o$', '\.so$',
-    \ '^\.git$', '^\.svn$' ]
-
-" }}}
-
-" -----------------------------------------------------------------------------
-" Misc stuff
 
 " Suggestions from Reddit and HN {{{
 
@@ -831,6 +961,16 @@ nmap ., :tabprev<CR>
 " }}}
 
 " Miscellaneous settings {{{
+
+" when changing a line, don't redisplay, but put a '$' at the end during the change
+set cpoptions+=$
+
+" don't start new lines w/ comment leader on pressing 'o'
+set formatoptions-=o
+
+" somehow, during vim filetype detection, this gets set for vim files,
+" so explicitly unset it again
+au filetype vim set formatoptions-=o
 
 " Don't let cindent muck with ':' in insert-mode.
 set cinkeys-=:
